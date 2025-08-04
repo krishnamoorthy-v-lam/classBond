@@ -1,0 +1,14 @@
+# pytorch with cuda
+ pip install torch==2.7.0+cu118 torchvision==0.22.0+cu118 torchaudio==2.7.0+cu118 --index-url https://download.pytorch.org/whl/cu118
+
+# English to tamil convertion
+git clone https://github.com/VarunGumma/IndicTransToolkit
+cd IndicTransToolkit
+pip install --editable ./
+
+
+#voice to text convertion
+git clone https://github.com/AI4Bharat/NeMo.git
+cd NeMo
+git checkout nemo-v2
+bash reinstall.sh
