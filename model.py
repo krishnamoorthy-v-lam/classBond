@@ -1,6 +1,7 @@
-from IndicTransToolkit.IndicTransToolkit import IndicProcessor
+from IndicTransToolkit import IndicProcessor
 from collections import OrderedDict
 import nltk
+import re
 nltk.download('punkt')
 
 config = {
@@ -56,14 +57,22 @@ def mask_word(sent):
     replaced_sent = lower_sent
     for i, key in enumerate(sorted_keys):
         if key in replaced_sent:
-            replaced_sent = replaced_sent.replace(key, f"<WORD{list(ordered_config).index(key)}>")
+            pattern = r'\b' + re.escape(key) + r'\b'
+            replaced_sent = re.sub(
+            pattern,
+            f"[WORD{list(ordered_config).index(key)}]",
+            replaced_sent
+        )
     return replaced_sent
 
 def unmask(sent):
     unmasked_sent = sent
-    for i, key in enumerate(sorted_keys):
-        unmasked_sent = unmasked_sent.replace(f"<WORD{list(ordered_config).index(key)}>", config[key])
+    key_index_map = {key: i for i, key in enumerate(ordered_config)}  # precompute index
+    for key in sorted_keys:
+        placeholder = f"[WORD{key_index_map[key]}]"
+        unmasked_sent = unmasked_sent.replace(placeholder, config[key])
     return unmasked_sent
+
 
 
 class Process:
