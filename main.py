@@ -10,8 +10,10 @@ import soundfile as sf
 import numpy as np
 from infoExtraction import audio_info
 from pydub import AudioSegment  # For audio format conversion
+import os
 
 app = FastAPI()
+hf_token = os.environ.get("HUGGINGFACE_TOKEN")
 logger = logging.getLogger("uvicorn.error")
 
 english_to_tamil = "ai4bharat/indictrans2-en-indic-1B"
@@ -94,9 +96,10 @@ async def load_model():
     if ACTIVATE_MODEL == "LLAMA3_INSTRUCT":
         logger.info("Loading Llama 3 model...")
 
-        llama3_tokenizer = AutoTokenizer.from_pretrained(text_to_proper_text)
+        llama3_tokenizer = AutoTokenizer.from_pretrained(text_to_proper_text, token=hf_token)
         llama3_model = AutoModelForCausalLM.from_pretrained(
             text_to_proper_text,
+            token=hf_token,
             device_map="auto" if DEVICE == "cuda" else None,
             torch_dtype=torch.float16 if DEVICE == "cuda" else torch.float32,
             trust_remote_code=True,
@@ -108,6 +111,9 @@ async def load_model():
         logger.info("Llama 3 model loaded successfully.")
 
 
+@app.get("/")
+async def check():
+    return {"msg": "Running..."}
 
 @app.post("/translate")
 async def translate(msg: MessageInput, request: Request):
